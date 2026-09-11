@@ -1,0 +1,74 @@
+- description: "[REPORT] Program runs and prints a report"
+  check: ExecuteCommand
+  options:
+    command: uv run pytest tests/test_report.py::test_program_runs_and_prints
+
+- description: "[REPORT] Every arithmetic line is correct for a set of number pairs"
+  check: ExecuteCommand
+  options:
+    command: uv run pytest tests/test_report.py::test_report_lines_are_correct
+
+- description: "[REPORT] The title line and the repeated line are present"
+  check: ExecuteCommand
+  options:
+    command: uv run pytest tests/test_report.py::test_title_and_repeated_lines
+
+- src/main.py:
+  - description: "[REPORT] No TODO markers remain in main.py"
+    check: MatchFileFragment
+    options:
+      fragment: TODO
+      count: 0
+      exact: true
+  - description: "[REPORT] Contains at least five comments"
+    check: CountSingleLineComments
+    options:
+      language: Python
+      count: 5
+      exact: false
+  - description: "[REPORT] Splits the entry with .split()"
+    check: MatchFileFragment
+    options:
+      fragment: ".split"
+      count: 1
+      exact: false
+  # Regex, not a plain fragment: "int(" is a substring of "print(", so a
+  # fragment check here is satisfied by print() calls alone, with no
+  # conversion anywhere. The word boundary excludes print(.
+  - description: "[REPORT] Converts both pieces to integers with int()"
+    check: MatchFileRegex
+    options:
+      regex: "\\bint\\("
+      count: 2
+      exact: false
+  - description: "[REPORT] Builds the repeated line with string repetition"
+    check: MatchFileRegex
+    options:
+      regex: "\\*\\s*34"
+      count: 1
+      exact: false
+  - description: "[REPORT] Joins strings with str() at least once"
+    check: MatchFileRegex
+    options:
+      regex: "\\bstr\\("
+      count: 3
+      exact: false
+  - description: "[REPORT] Uses an f-string at least once"
+    check: MatchFileRegex
+    options:
+      regex: "f\""
+      count: 1
+      exact: false
+
+- docs/summary.md:
+  - description: "[SUMMARY] The summary document contains no TODOs"
+    check: MatchFileFragment
+    options:
+      fragment: TODO
+      count: 0
+      exact: true
+  - description: "[SUMMARY] The summary document meets the word count"
+    check: CountFileWords
+    options:
+      count: 100
+      exact: false
